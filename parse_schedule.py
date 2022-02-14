@@ -1,9 +1,11 @@
 import json
 
-with open('parsed_schedule.json') as f:
+with open('schedule.json') as f:
     data = json.load(f)
 
 d = data['lscd']
+# print(type(d))
+out = {}
 for month in d:
     for game in month["mscd"]["g"]:
         # del game["bd"]
@@ -21,9 +23,11 @@ for month in d:
         # del game["gdtutc"]
         # del game["utctm"]
         # del game["ppdst"]
-        if "ptsls" in game:
-            del game["ptsls"]
+        # if "ptsls" in game:
+        #     del game["ptsls"]
         # del game["seq"]
+        out.setdefault(game["gdte"], []).append(game["v"]["ta"])
+        out[game["gdte"]].append(game["h"]["ta"]) 
 
-with open('schedule.json', 'w') as w:
-    json.dump(data, w, indent=2)
+with open('parse_schedule.json', 'w') as w:
+    json.dump(out, w, indent=2)

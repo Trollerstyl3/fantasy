@@ -3,6 +3,7 @@ import datetime
 from yahoo_oauth import OAuth2
 import yahoo_fantasy_api as yf
 import datetime as dt
+import json
 
 oauth = OAuth2(None, None, from_file='oauth2.json')
 
@@ -31,6 +32,9 @@ _lg = gm.to_league('410.l.72284')
 _tm = _lg.to_team(_lg.team_key())
 
 
+
+
+
 def setActive(lg, tm, date):
     # get roster and get players and eligible positions
     roster = tm.roster()
@@ -41,7 +45,7 @@ def setActive(lg, tm, date):
         players[id] = elig
 
     # Check what to player
-    avail = rosterSpots(lg)
+    avail = rosterSpots(_lg)
 
     changes = []
 
@@ -51,11 +55,19 @@ def setActive(lg, tm, date):
                 avail['IL'] -= 1
                 changes.append({'player_id': p, 'selected_position': 'IL'})
         else:
-            pass
+            if check_played(_lg, p, date):
+              for i in players[p]:
+                if check_avail(avail, i):
+                  avail[i] -= 1
+                  changes.append({'player_id': p, 'selected_position': i})
+                  break
+    return changes
 
 
-def check_played(pl, date) -> bool:
-    pass
+def check_played(lg, pl, date) -> bool:
+    with open("parse_schedule.json", "r") as f:
+      schedule = json.load(f)
+      return lg.player_details(pl)[0]["editorial_team_abbr"].upper() in schedule[date.isoformat]
 
 
 def check_avail(avail, status) -> bool:
