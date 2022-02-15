@@ -31,11 +31,18 @@ _lg = gm.to_league('410.l.72284')
 # get access to user team get teamkey
 _tm = _lg.to_team(_lg.team_key())
 
+# get current week and loop through the week to start each date
+curr_week = _lg.current_week()
+start, end = _lg.week_date_range(curr_week)
+delta = datetime.timedelta(days=1)
+if start <= datetime.date.today():
+    start = datetime.date.today() + delta
 
 
+# print(datetime.date.today() + delta)
 
 
-def setActive(lg, tm, date):
+def set_active(lg, tm, date):
     # get roster and get players and eligible positions
     roster = tm.roster()
     players = {}
@@ -45,7 +52,7 @@ def setActive(lg, tm, date):
         players[id] = elig
 
     # Check what to player
-    avail = rosterSpots(_lg)
+    avail = roster_spots(lg)
 
     changes = []
 
@@ -55,19 +62,25 @@ def setActive(lg, tm, date):
                 avail['IL'] -= 1
                 changes.append({'player_id': p, 'selected_position': 'IL'})
         else:
-            if check_played(_lg, p, date):
-              for i in players[p]:
-                if check_avail(avail, i):
-                  avail[i] -= 1
-                  changes.append({'player_id': p, 'selected_position': i})
-                  break
+            if check_played(lg, p, date):
+                for i in players[p]:
+                    if check_avail(avail, i):
+                        avail[i] -= 1
+                        changes.append({'player_id': p, 'selected_position': i})
+                        break
+            else:
+                changes.append({'player_id': p, 'selected_position': "BN"})
+
     return changes
 
 
 def check_played(lg, pl, date) -> bool:
     with open("parse_schedule.json", "r") as f:
-      schedule = json.load(f)
-      return lg.player_details(pl)[0]["editorial_team_abbr"].upper() in schedule[date.isoformat]
+        schedule = json.load(f)
+        if date.isoformat() in schedule:
+            return lg.player_details(pl)[0]["editorial_team_abbr"].upper() in \
+                   schedule[date.isoformat()]
+        return False
 
 
 def check_avail(avail, status) -> bool:
@@ -76,12 +89,15 @@ def check_avail(avail, status) -> bool:
     return False
 
 
-def rosterSpots(lg):
+def roster_spots(lg):
     out = {}
-    pos = lg.position()
+    pos = lg.positions()
     for i in pos:
         out[i] = int(pos[i]['count'])
     return out
 
 
-print(_tm.roster())
+while start <= end:
+    _tm.change_positions(start, set_active(_lg, _tm, start))
+    start += delta
+# print(_tm.roster())
