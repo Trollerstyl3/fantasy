@@ -27,7 +27,7 @@ for month in d:
         #     del game["ptsls"]
         # del game["seq"]
         out.setdefault(game["gdte"], []).append(game["v"]["ta"])
-        out[game["gdte"]].append(game["h"]["ta"]) 
+        out[game["gdte"]].append(game["h"]["ta"])
 
-with open('parse_schedule.json', 'w') as w:
+with open('schedule.json', 'w') as w:
     json.dump(out, w, indent=2)

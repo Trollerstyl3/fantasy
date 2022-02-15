@@ -75,7 +75,7 @@ def set_active(lg, tm, date):
 
 
 def check_played(lg, pl, date) -> bool:
-    with open("parse_schedule.json", "r") as f:
+    with open("schedule.json", "r") as f:
         schedule = json.load(f)
         if date.isoformat() in schedule:
             return lg.player_details(pl)[0]["editorial_team_abbr"].upper() in \
