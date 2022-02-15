@@ -1,6 +1,6 @@
 import json
 
-with open('schedule.json') as f:
+with open('../data/schedule.json') as f:
     data = json.load(f)
 
 d = data['lscd']
@@ -29,5 +29,5 @@ for month in d:
         out.setdefault(game["gdte"], []).append(game["v"]["ta"])
         out[game["gdte"]].append(game["h"]["ta"])
 
-with open('schedule.json', 'w') as w:
+with open('../data/schedule.json', 'w') as w:
     json.dump(out, w, indent=2)

@@ -1,11 +1,10 @@
 import datetime
-
 from yahoo_oauth import OAuth2
 import yahoo_fantasy_api as yf
 import datetime as dt
 import json
 
-oauth = OAuth2(None, None, from_file='oauth2.json')
+oauth = OAuth2(None, None, from_file='auth/oauth2.json')
 
 # Positions:
 # PG
@@ -75,7 +74,7 @@ def set_active(lg, tm, date):
 
 
 def check_played(lg, pl, date) -> bool:
-    with open("schedule.json", "r") as f:
+    with open("../data/schedule.json", "r") as f:
         schedule = json.load(f)
         if date.isoformat() in schedule:
             return lg.player_details(pl)[0]["editorial_team_abbr"].upper() in \
